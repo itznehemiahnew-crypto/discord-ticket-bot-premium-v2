@@ -166,7 +166,7 @@ async function closeTicket(guild, channel, reason = 'Ticket closed') {
 }
 
 async function registerSlashCommands() {
-  if (!CLIENT_ID || !GUILD_ID) return;
+  if (!CLIENT_ID) return;
 
   const rest = new REST({ version: '10' }).setToken(TOKEN);
   const commands = [
@@ -192,8 +192,12 @@ async function registerSlashCommands() {
     }
   ];
 
-  console.log('Registering slash commands for guild:', GUILD_ID);
-  await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), { body: commands });
+  const route = GUILD_ID
+    ? Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID)
+    : Routes.applicationCommands(CLIENT_ID);
+
+  console.log('Registering slash commands via:', GUILD_ID ? 'guild' : 'global');
+  await rest.put(route, { body: commands });
 }
 
 client.once('ready', async () => {
@@ -471,7 +475,7 @@ client.on('messageCreate', async message => {
     const action = args[0]?.toLowerCase();
 
     if (!action || action === 'new') {
-      const channel = await createTicketChannel(message.guild, client.user, 'General support');
+      const channel = await createTicketChannel(message.guild, message.member, 'General support');
       await message.reply(`Ticket created: <#${channel.id}>`);
       return;
     }
