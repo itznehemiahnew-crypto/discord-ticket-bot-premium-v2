@@ -3,6 +3,14 @@ const { Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, But
 const { getGuildConfig, saveGuildConfig, getTickets, createTicketEntry, updateTicket, getTicketByChannel } = require('./configStore');
 const { sendSetupWizard, setSetupState, clearSetupState, getSetupState, getGuildPrefix } = require('./setupWizard');
 
+console.log('=== Bot startup diagnostics ===');
+console.log('NODE_ENV:', process.env.NODE_ENV || 'development');
+console.log('PORT env:', process.env.PORT || 'not set');
+console.log('DISCORD_TOKEN set:', Boolean(process.env.DISCORD_TOKEN));
+console.log('CLIENT_ID set:', Boolean(process.env.CLIENT_ID));
+console.log('GUILD_ID set:', Boolean(process.env.GUILD_ID));
+console.log('BOT_PREFIX set:', Boolean(process.env.BOT_PREFIX));
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -28,6 +36,16 @@ const TOKEN = process.env.DISCORD_TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
 const GUILD_ID = process.env.GUILD_ID;
 const PREFIX_FALLBACK = process.env.BOT_PREFIX || '!';
+
+process.on('unhandledRejection', (reason) => {
+  console.error('UNHANDLED REJECTION:');
+  console.error(reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('UNCAUGHT EXCEPTION:');
+  console.error(error);
+});
 
 function getTicketNumber(guildId) {
   const config = getGuildConfig(guildId);
@@ -174,6 +192,7 @@ async function registerSlashCommands() {
     }
   ];
 
+  console.log('Registering slash commands for guild:', GUILD_ID);
   await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), { body: commands });
 }
 
@@ -181,6 +200,14 @@ client.once('ready', async () => {
   console.log(`Logged in as ${client.user.tag}`);
   client.user.setPresence({ activities: [{ name: 'Tickets • /setup', type: 3 }], status: 'online' });
   await registerSlashCommands();
+});
+
+client.on('error', (error) => {
+  console.error('Discord client error:', error);
+});
+
+client.on('rateLimit', (info) => {
+  console.warn('Discord rate limit hit:', info);
 });
 
 client.on('interactionCreate', async interaction => {
@@ -444,7 +471,7 @@ client.on('messageCreate', async message => {
     const action = args[0]?.toLowerCase();
 
     if (!action || action === 'new') {
-      const channel = await createTicketChannel(message.guild, message.member, 'General support');
+      const channel = await createTicketChannel(message.guild, client.user, 'General support');
       await message.reply(`Ticket created: <#${channel.id}>`);
       return;
     }
@@ -476,8 +503,15 @@ client.on('messageCreate', async message => {
 });
 
 if (!TOKEN) {
-  console.error('DISCORD_TOKEN is missing. Please add it to your .env file.');
+  console.error('DISCORD_TOKEN is missing. Add it in Render environment variables or your local .env file.');
   process.exit(1);
 }
 
-client.login(TOKEN);
+console.log('Attempting Discord login...');
+client.login(TOKEN).then(() => {
+  console.log('Discord login promise resolved successfully.');
+}).catch((error) => {
+  console.error('Discord login failed. Check DISCORD_TOKEN and confirm it matches the same app used for CLIENT_ID.');
+  console.error(error);
+  process.exit(1);
+});
