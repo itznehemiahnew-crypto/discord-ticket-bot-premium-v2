@@ -1,0 +1,85 @@
+# Discord Ticket Bot Premium V2
+
+A premium-style Discord ticket bot built with Discord.js 14, designed to run free on GitHub + Render.
+
+Features:
+- Setup wizard in Discord
+- Slash commands and prefix fallback
+- Ticket creation and closure
+- Staff claiming and listing
+- Panel creation
+- Config storage
+- Render-ready deployment
+- Simple cron health ping script
+
+## Included commands
+
+Slash commands:
+- /setup
+- /panel
+- /config
+- /prefix
+- /ticket new
+- /ticket close
+- /ticket info
+- /ticket claim
+- /ticket unclaim
+- /ticket list
+
+Prefix commands:
+- !setup
+- !ticket new
+- !ticket close
+- !ticket panel
+- !ticket config
+
+## Required Render environment variables
+
+Only minimal variables are required for deployment:
+- DISCORD_TOKEN
+- CLIENT_ID
+- GUILD_ID
+- BOT_PREFIX (optional, default is !)
+
+Everything else can be configured from Discord using the /setup wizard.
+
+## Deploy on Render
+
+1. Push this repo to GitHub.
+2. In Render, create a new Web Service connected to this repo.
+3. Set the environment variables:
+   - DISCORD_TOKEN
+   - CLIENT_ID
+   - GUILD_ID
+   - BOT_PREFIX
+4. Use the Start Command:
+   - npm start
+5. Enable a cron job or health check to keep the bot awake on free hosting.
+
+## Local development
+
+1. Copy `.env.example` to `.env`.
+2. Fill in your bot values.
+3. Install dependencies:
+   - npm install
+4. Start the bot:
+   - npm start
+
+## Notes
+
+This is a free-tier, lightweight version and is intended as a strong base for a premium ticket bot. It stores configuration in local JSON under the `data/` folder so it is easy to extend into a database later.
+
+## Suggested future upgrades
+
+- SQLite or PostgreSQL database
+- Ticket forms and modals
+- Auto-close / reminders
+- Transcript logging
+- Blacklist system
+- Survey / rating after close
+- Multi-language setup
+- Custom ticket templates
+
+## License
+
+MIT

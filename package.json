@@ -1,0 +1,25 @@
+{
+  "name": "discord-ticket-bot-premium-v2",
+  "version": "1.0.0",
+  "description": "Premium Discord ticket bot with a setup wizard, custom prefix support, and Render-ready deployment.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "ping": "node scripts/ping.js"
+  },
+  "keywords": [
+    "discord",
+    "discord-bot",
+    "ticket-bot",
+    "tickets",
+    "render",
+    "github"
+  ],
+  "author": "GitHub Copilot",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.2"
+  }
+}

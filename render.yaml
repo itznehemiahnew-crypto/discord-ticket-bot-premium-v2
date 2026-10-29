@@ -1,0 +1,16 @@
+const https = require('https');
+
+const URL = process.env.RENDER_EXTERNAL_URL || process.env.HEALTHCHECK_URL || 'https://example.com';
+
+function ping() {
+  https
+    .get(URL, res => {
+      console.log(`Ping status: ${res.statusCode}`);
+      res.resume();
+    })
+    .on('error', err => {
+      console.error('Ping failed:', err.message);
+    });
+}
+
+ping();
