@@ -1,6 +1,18 @@
+const express = require('express');
 const { Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, REST, Routes } = require('discord.js');
 const { getGuildConfig, saveGuildConfig, getTickets, createTicketEntry, updateTicket, getTicketByChannel } = require('./configStore');
 const { sendSetupWizard, setSetupState, clearSetupState, getSetupState, getGuildPrefix } = require('./setupWizard');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ ok: true, service: 'discord-ticket-bot-premium-v2' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Health server listening on port ${PORT}`);
+});
 
 const client = new Client({
   intents: [
