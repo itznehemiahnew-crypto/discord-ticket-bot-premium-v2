@@ -36,22 +36,24 @@ function writeJson(filePath, value) {
 
 function getGuildConfig(guildId) {
   const config = readJson(CONFIG_PATH, { guilds: {} });
-  return config.guilds[guildId] || {
-    prefix: process.env.BOT_PREFIX || '!',
-    supportRoleId: '',
-    adminRoleId: '',
-    ticketCategoryId: '',
-    archiveCategoryId: '',
-    logChannelId: '',
-    panelChannelId: '',
-    ticketCounter: 1,
-    autoCloseMinutes: 0,
-    reminderMinutes: 0,
+  const current = config.guilds[guildId] || {};
+
+  return {
+    prefix: current.prefix || process.env.BOT_PREFIX || '!',
+    supportRoleId: current.supportRoleId || '',
+    adminRoleId: current.adminRoleId || '',
+    ticketCategoryId: current.ticketCategoryId || '',
+    archiveCategoryId: current.archiveCategoryId || '',
+    logChannelId: current.logChannelId || '',
+    panelChannelId: current.panelChannelId || '',
+    ticketCounter: current.ticketCounter || 1,
+    autoCloseMinutes: current.autoCloseMinutes || 0,
+    reminderMinutes: current.reminderMinutes || 0,
     enabledFeatures: {
-      transcript: true,
-      autoClose: false,
-      reminders: false,
-      surveys: false
+      transcript: current.enabledFeatures?.transcript ?? true,
+      autoClose: current.enabledFeatures?.autoClose ?? false,
+      reminders: current.enabledFeatures?.reminders ?? false,
+      surveys: current.enabledFeatures?.surveys ?? false
     }
   };
 }
@@ -72,9 +74,9 @@ function saveTickets(tickets) {
 }
 
 function createTicketEntry(guildId, data) {
-  const tickets = getTickets(guildId);
-  tickets.push(data);
-  saveTickets(tickets.concat(readJson(TICKETS_PATH, []).filter(ticket => ticket.guildId !== guildId)));
+  const allTickets = readJson(TICKETS_PATH, []);
+  allTickets.push({ guildId, ...data });
+  saveTickets(allTickets);
 }
 
 function updateTicket(guildId, ticketId, updater) {
